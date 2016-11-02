@@ -1,0 +1,35 @@
+import org.apache.hadoop.hbase.HBaseConfiguration
+import org.apache.hadoop.hbase.client.Result
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.hadoop.hbase.mapreduce.TableInputFormat
+import org.apache.spark.{SparkConf, SparkContext}
+
+
+object Hbase {
+
+
+  def main(args: Array[String]) {
+    //System.setProperty("user.name", "webmaster");
+    //System.setProperty("HADOOP_USER_NAME", "webmaster");
+    //val jarPath="target\\scala-2.11\\scala-spark_2.11-1.0.jar";
+    val  sparkConf=new SparkConf().setMaster("local[8]").setAppName("read hbase");
+    //val seq=Seq(jarPath) :+ "D:\\bigdata\\hbaselib\\hbase-protocol-0.98.12-hadoop2.jar" :+ "D:\\bigdata\\hbaselib\\hbase-common-0.98.12-hadoop2.jar" :+ "D:\\bigdata\\hbaselib\\htrace-core-2.04.jar" :+ "D:\\bigdata\\hbaselib\\hbase-client-0.98.12-hadoop2.jar" :+ "D:\\bigdata\\hbaselib\\hbase-server-0.98.12-hadoop2.jar"  :+ "D:\\bigdata\\hbaselib\\guava-12.0.1.jar"
+    //     val seq=Seq(jarPath)
+    //    println("jar包路径："+seq)
+
+    //sparkConf.setJars(seq)
+    val sc=new SparkContext(sparkConf);
+    val conf=HBaseConfiguration.create();
+    conf.set("hbase.zookeeper.quorum", "60.205.152.16:2181");
+    conf.set(TableInputFormat.INPUT_TABLE,"test")
+    //得到Hbase的Result转成RDD
+    val rdd=sc.newAPIHadoopRDD(conf,classOf[TableInputFormat]
+      ,classOf[ImmutableBytesWritable],classOf[Result]);
+
+    val count=rdd.count();
+    println("数量："+count)
+    rdd.foreach(println)
+    sc.stop();
+  }
+
+} 
